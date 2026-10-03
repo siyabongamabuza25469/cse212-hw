@@ -1,69 +1,93 @@
+using System;
+using System.Collections.Generic;
+
 /// <summary>
-/// Defines a maze using a dictionary. The dictionary is provided by the
-/// user when the Maze object is created. The dictionary will contain the
-/// following mapping:
+/// Represents a maze whose locations are stored in a dictionary.
 ///
-/// (x,y) : [left, right, up, down]
+/// Each dictionary entry maps an (x, y) location to an array containing
+/// four direction values in this order:
 ///
-/// 'x' and 'y' are integers and represents locations in the maze.
-/// 'left', 'right', 'up', and 'down' are boolean are represent valid directions
+/// [0] left
+/// [1] right
+/// [2] up
+/// [3] down
 ///
-/// If a direction is false, then we can assume there is a wall in that direction.
-/// If a direction is true, then we can proceed.  
-///
-/// If there is a wall, then throw an InvalidOperationException with the message "Can't go that way!".  If there is no wall,
-/// then the 'currX' and 'currY' values should be changed.
+/// A value of true means movement in that direction is allowed.
+/// A value of false means there is a wall.
 /// </summary>
 public class Maze
 {
-    private readonly Dictionary<ValueTuple<int, int>, bool[]> _mazeMap;
+    private readonly Dictionary<(int x, int y), bool[]> _mazeMap;
     private int _currX = 1;
     private int _currY = 1;
 
-    public Maze(Dictionary<ValueTuple<int, int>, bool[]> mazeMap)
+    public Maze(Dictionary<(int x, int y), bool[]> mazeMap)
     {
-        _mazeMap = mazeMap;
+        _mazeMap = mazeMap ?? throw new ArgumentNullException(nameof(mazeMap));
     }
 
-    // TODO Problem 4 - ADD YOUR CODE HERE
     /// <summary>
-    /// Check to see if you can move left.  If you can, then move.  If you
-    /// can't move, throw an InvalidOperationException with the message "Can't go that way!".
+    /// Moves left if the current location allows it.
     /// </summary>
     public void MoveLeft()
     {
-        // FILL IN CODE
+        Move(0, -1, 0);
     }
 
     /// <summary>
-    /// Check to see if you can move right.  If you can, then move.  If you
-    /// can't move, throw an InvalidOperationException with the message "Can't go that way!".
+    /// Moves right if the current location allows it.
     /// </summary>
     public void MoveRight()
     {
-        // FILL IN CODE
+        Move(1, 1, 0);
     }
 
     /// <summary>
-    /// Check to see if you can move up.  If you can, then move.  If you
-    /// can't move, throw an InvalidOperationException with the message "Can't go that way!".
+    /// Moves up if the current location allows it.
     /// </summary>
     public void MoveUp()
     {
-        // FILL IN CODE
+        Move(2, 0, 1);
     }
 
     /// <summary>
-    /// Check to see if you can move down.  If you can, then move.  If you
-    /// can't move, throw an InvalidOperationException with the message "Can't go that way!".
+    /// Moves down if the current location allows it.
     /// </summary>
     public void MoveDown()
     {
-        // FILL IN CODE
+        Move(3, 0, -1);
     }
 
+    /// <summary>
+    /// Returns the current maze location.
+    /// </summary>
     public string GetStatus()
     {
         return $"Current location (x={_currX}, y={_currY})";
+    }
+
+    private void Move(int directionIndex, int xChange, int yChange)
+    {
+        bool[] directions = GetCurrentDirections();
+
+        if (!directions[directionIndex])
+        {
+            throw new InvalidOperationException("Can't go that way!");
+        }
+
+        _currX += xChange;
+        _currY += yChange;
+    }
+
+    private bool[] GetCurrentDirections()
+    {
+        if (!_mazeMap.TryGetValue((_currX, _currY), out bool[] directions) ||
+            directions == null ||
+            directions.Length < 4)
+        {
+            throw new InvalidOperationException("Can't go that way!");
+        }
+
+        return directions;
     }
 }
